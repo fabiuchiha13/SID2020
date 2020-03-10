@@ -1,6 +1,7 @@
 package com.example.sid2020.APP;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -36,7 +37,6 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
     int month;
     int day;
     String date;
-    int firstRefresh = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,8 +116,10 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
         }
     }
 
-    int mostRecentEntry = 0;
     private void listAlertas(){
+        SharedPreferences sp = getApplicationContext().getSharedPreferences("appPref", MODE_PRIVATE);
+        int mostRecentEntry = 0;
+
         TableLayout table = findViewById(R.id.tableAlertas);
 
         DatabaseReader dbReader = new DatabaseReader(db);
@@ -166,6 +168,7 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
 
         table.addView(headerRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
 
+        System.out.println("AAAAA ");
         while (cursorAlertasGlobais.moveToNext()){
             TableRow row = new TableRow(this);
             row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
@@ -198,10 +201,14 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
 
             String intHora = horaFormatado.replace(":", "");
             int newHora = Integer.parseInt(intHora);
-            if (newHora > mostRecentEntry) {
-                mostRecentEntry = newHora;
-                if (firstRefresh == 0) {
+            System.out.println("BBBBB " + sp.getInt("timePref", 0));
+            System.out.println("CCCCC " + newHora);
+            if (newHora > mostRecentEntry) mostRecentEntry = newHora;
+            if (newHora > sp.getInt("timePref", 0)) {
+                System.out.println("DDDDDD "+ sp.getInt("refreshPref", 1));
+                if (sp.getInt("refreshPref", 1) == 0) {
                     //nomeVariavel.setTypeface(null, Typeface.BOLD);
+                    System.out.println("EEEEEE ");
                     nomeVariavel.setTextColor(Color.RED);
                     hora.setTextColor(Color.RED);
                     limiteInferior.setTextColor(Color.RED);
@@ -221,7 +228,10 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
             table.addView(row, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
 
         }
-        firstRefresh = 0;
+        SharedPreferences.Editor editor = sp.edit().putInt("timePref", mostRecentEntry);
+        editor.apply();
+        SharedPreferences.Editor editor2 = sp.edit().putInt("refreshPref", 0);
+        editor2.apply();
     }
 
     private int dpAsPixels(int dp){
