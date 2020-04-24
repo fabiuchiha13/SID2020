@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -32,7 +32,6 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
     private static final String password = UserLogin.getInstance().getPassword();
     DatabaseHandler db = new DatabaseHandler(this);
     String getAlertasGlobais = "http://" + IP + ":" + PORT + "/scripts/getAlertasGlobais.php";
-    int firstCall = 1;
     int year;
     int month;
     int day;
@@ -199,23 +198,27 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
             hora.setPadding(dpAsPixels(16),dpAsPixels(5),0,0);
 
             TextView tipoSensor = new TextView(this);
-            tipoSensor.setText(cursorAlertasGlobais.getString(cursorAlertasGlobais.getColumnIndex("TipoSensor")));
+            String valorTipoSensor = cursorAlertasGlobais.getString(cursorAlertasGlobais.getColumnIndex("TipoSensor"));
+            if (valorTipoSensor == null || valorTipoSensor.equals("null")) valorTipoSensor = "";
+            tipoSensor.setText(valorTipoSensor);
             tipoSensor.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
 
             TextView valorMedicao = new TextView(this);
             String valor = Double.toString(cursorAlertasGlobais.getDouble(cursorAlertasGlobais.getColumnIndex("ValorMedicao")));
-            if (valor.equals("-1000.0"))valor = "null";
+            if (valor.equals("-1000.0"))valor = "";
             valorMedicao.setText(valor);
             valorMedicao.setPadding(dpAsPixels(16),dpAsPixels(5),0,0);
 
             TextView limite = new TextView(this);
             String valorLimite = Double.toString(cursorAlertasGlobais.getDouble(cursorAlertasGlobais.getColumnIndex("Limite")));
-            if (valorLimite.equals("-1000.0")) valorLimite = "null";
+            if (valorLimite.equals("-1000.0")) valorLimite = "";
             limite.setText(valorLimite);
             limite.setPadding(dpAsPixels(16),dpAsPixels(5),0,0);
 
             TextView descricao = new TextView(this);
-            descricao.setText(cursorAlertasGlobais.getString(cursorAlertasGlobais.getColumnIndex("Descricao")));
+            String valorDescricao = cursorAlertasGlobais.getString(cursorAlertasGlobais.getColumnIndex("Descricao"));
+            if (valorDescricao == null || valorDescricao.equals("null")) valorDescricao = "";
+            descricao.setText(valorDescricao);
             descricao.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
 
             TextView controlo = new TextView(this);
@@ -224,7 +227,9 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
             controlo.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
 
             TextView extra = new TextView(this);
-            extra.setText(cursorAlertasGlobais.getString(cursorAlertasGlobais.getColumnIndex("Extra")));
+            String valorExtra = cursorAlertasGlobais.getString(cursorAlertasGlobais.getColumnIndex("Extra"));
+            if (valorExtra == null || valorExtra.equals("null")) valorExtra = "";
+            extra.setText(valorExtra);
             extra.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
 
             String intHora = horaFormatado.replace(":", "");
