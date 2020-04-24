@@ -1,7 +1,5 @@
 package com.example.sid2020.APP.Connection;
 
-import android.util.Log;
-
 import org.json.JSONArray;
 
 import java.io.BufferedInputStream;
@@ -24,7 +22,6 @@ public class ConnectionHandler {
             for (String key : params.keySet()) {
                 if (i != 0) {
                     sb_params.append("&");
-                    //Log.d("DEBBUG", key.toString());
                 }
                 sb_params.append(key).append("=").append(URLEncoder.encode(params.get(key), "UTF-8"));
                 i++;
@@ -44,7 +41,6 @@ public class ConnectionHandler {
             StringBuilder result = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
-                //Log.d("Line",line);
                 result.append(line);
             }
             conn.disconnect();

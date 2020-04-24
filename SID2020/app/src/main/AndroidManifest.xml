@@ -15,11 +15,9 @@
         android:usesCleartextTraffic="true"
         android:debuggable="true"
         tools:ignore="HardcodedDebugMode">
-        <activity android:name=".APP.AlertasCulturaActivity" android:screenOrientation="portrait"></activity>
         <activity android:name=".APP.DatePickerActivity" android:screenOrientation="portrait" />
         <activity android:name=".APP.AlertasGlobaisActivity" android:screenOrientation="portrait" />
-        <activity android:name=".APP.GlobaisActivity" android:screenOrientation="portrait" />
-        <activity android:name=".APP.MainActivity" android:screenOrientation="portrait" />
+        <activity android:name=".APP.MedicoesTemperaturaActivity" android:screenOrientation="portrait" />
         <activity android:name=".APP.LoginActivity" android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

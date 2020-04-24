@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -33,6 +32,7 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
     private static final String password = UserLogin.getInstance().getPassword();
     DatabaseHandler db = new DatabaseHandler(this);
     String getAlertasGlobais = "http://" + IP + ":" + PORT + "/scripts/getAlertasGlobais.php";
+    int firstCall = 1;
     int year;
     int month;
     int day;
@@ -42,7 +42,6 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alertas_globais);
-
 
         if (getIntent().hasExtra("date")){
             int[] yearMonthDay = getIntent().getIntArrayExtra("date");
@@ -61,7 +60,7 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
     }
 
 
-    private void dateToString(){
+    private void dateToString() {
        String yearString = Integer.toString(year);
        String monthString ="";
        String dayString="";
@@ -83,14 +82,14 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
 
     }
 
-    public void showDatePicker(View v){
+    public void showDatePicker(View v) {
         Intent intent = new Intent(this,DatePickerActivity.class);
         intent.putExtra("global",1);
         startActivity(intent);
         finish();
     }
 
-    private void getAlertas(){
+    private void getAlertas() {
         db.clearAlertasGlobais();
         HashMap<String, String> params = new HashMap<>();
         params.put("username", username);
@@ -102,13 +101,29 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
             if(medicoesTemperatura!=null){
                 for (int i=0;i< medicoesTemperatura.length();i++){
                     JSONObject c = medicoesTemperatura.getJSONObject(i);
-                    String dataHoraMedicao = c.getString("DataHora");
-                    String nomeVariavel = c.getString("NomeVariavel");
-                    double limiteInferior = c.getDouble("LimiteInferior");
-                    double limiteSuperior = c.getDouble("LimiteSuperior");
-                    double valorMedicao = c.getDouble("ValorMedicao");
+                    String dataHoraMedicao = c.getString("DataHoraMedicao");
+                    String tipoSensor = c.getString("TipoSensor");
+                    double valorMedicao;
+                    try {
+                        valorMedicao = c.getDouble("ValorMedicao");
+                    } catch (Exception e) {
+                        valorMedicao = -1000.0;
+                    }
+                    double limite;
+                    try {
+                        limite = c.getDouble("Limite");
+                    } catch (Exception e) {
+                        limite = -1000.0;
+                    }
                     String descricao = c.getString("Descricao");
-                    db.insert_alertaGlobal(dataHoraMedicao,nomeVariavel,limiteInferior,limiteSuperior,valorMedicao,descricao);
+                    int controlo;
+                    try {
+                        controlo = c.getInt("Controlo");
+                    } catch (Exception e) {
+                        controlo = 0;
+                    }
+                    String extra = c.getString("Extra");
+                    db.insert_alertaGlobal(dataHoraMedicao,tipoSensor,valorMedicao,limite,descricao,controlo,extra);
                 }
             }
         }catch (JSONException e){
@@ -116,7 +131,7 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
         }
     }
 
-    private void listAlertas(){
+    private void listAlertas() {
         SharedPreferences sp = getApplicationContext().getSharedPreferences("appPref", MODE_PRIVATE);
         int mostRecentEntry = 0;
 
@@ -128,102 +143,111 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
         TableRow headerRow = new TableRow(this);
         headerRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
-        TextView headerNomeVariavel = new TextView(this);
-        headerNomeVariavel.setText("Nome Variavel");
-        headerNomeVariavel.setTextSize(16);
-        headerNomeVariavel.setPadding(dpAsPixels(16),dpAsPixels(50),0,10);
-
         TextView headerHora = new TextView(this);
         headerHora.setText("Hora");
         headerHora.setTextSize(16);
         headerHora.setPadding(dpAsPixels(16),dpAsPixels(50),0,10);
 
-        TextView headerLimiteInferior = new TextView(this);
-        headerLimiteInferior.setText("L. Inferior");
-        headerLimiteInferior.setTextSize(16);
-        headerLimiteInferior.setPadding(dpAsPixels(16),dpAsPixels(50),0,10);
-
-        TextView headerLimiteSuperior = new TextView(this);
-        headerLimiteSuperior.setText("L. Superior");
-        headerLimiteSuperior.setTextSize(16);
-        headerLimiteSuperior.setPadding(dpAsPixels(16),dpAsPixels(50),0,10);
+        TextView headerTipoSensor = new TextView(this);
+        headerTipoSensor.setText("Tipo Sensor");
+        headerTipoSensor.setTextSize(16);
+        headerTipoSensor.setPadding(dpAsPixels(16),dpAsPixels(50),0,10);
 
         TextView headerValorMedicao = new TextView(this);
         headerValorMedicao.setText("Valor Medicao");
         headerValorMedicao.setTextSize(16);
         headerValorMedicao.setPadding(dpAsPixels(16),dpAsPixels(50),0,10);
 
+        TextView headerLimite = new TextView(this);
+        headerLimite.setText("Limite");
+        headerLimite.setTextSize(16);
+        headerLimite.setPadding(dpAsPixels(16),dpAsPixels(50),0,10);
 
         TextView headerDescricao = new TextView(this);
         headerDescricao.setText("Descricao");
         headerDescricao.setTextSize(16);
         headerDescricao.setPadding(dpAsPixels(16),dpAsPixels(50),dpAsPixels(5),10);
 
-        headerRow.addView(headerNomeVariavel);
+        TextView headerControlo = new TextView(this);
+        headerControlo.setText("Controlo");
+        headerControlo.setTextSize(16);
+        headerControlo.setPadding(dpAsPixels(16),dpAsPixels(50),dpAsPixels(5),10);
+
+        TextView headerExtra = new TextView(this);
+        headerExtra.setText("Extra");
+        headerExtra.setTextSize(16);
+        headerExtra.setPadding(dpAsPixels(16),dpAsPixels(50),dpAsPixels(5),10);
+
         headerRow.addView(headerHora);
-        headerRow.addView(headerLimiteInferior);
-        headerRow.addView(headerLimiteSuperior);
+        headerRow.addView(headerTipoSensor);
         headerRow.addView(headerValorMedicao);
+        headerRow.addView(headerLimite);
         headerRow.addView(headerDescricao);
+        headerRow.addView(headerControlo);
+        headerRow.addView(headerExtra);
 
         table.addView(headerRow, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
 
-        System.out.println("AAAAA ");
         while (cursorAlertasGlobais.moveToNext()){
             TableRow row = new TableRow(this);
             row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
-            TextView nomeVariavel = new TextView(this);
-            nomeVariavel.setText(cursorAlertasGlobais.getString(cursorAlertasGlobais.getColumnIndex("NomeVariavel")));
-            nomeVariavel.setPadding(dpAsPixels(16),dpAsPixels(5),0,0);
-
             TextView hora = new TextView(this);
-            String horaDesformatado = cursorAlertasGlobais.getString(cursorAlertasGlobais.getColumnIndex("DataHora"));
+            String horaDesformatado = cursorAlertasGlobais.getString(cursorAlertasGlobais.getColumnIndex("DataHoraMedicao"));
             String horaFormatado = horaDesformatado.split(" ")[1];
             hora.setText(horaFormatado);
             hora.setPadding(dpAsPixels(16),dpAsPixels(5),0,0);
 
-            TextView limiteInferior = new TextView(this);
-            limiteInferior.setText(Double.toString(cursorAlertasGlobais.getDouble(cursorAlertasGlobais.getColumnIndex("LimiteInferior"))));
-            limiteInferior.setPadding(dpAsPixels(16),dpAsPixels(5),0,0);
-
-            TextView limiteSuperior = new TextView(this);
-            limiteSuperior.setText(Double.toString(cursorAlertasGlobais.getDouble(cursorAlertasGlobais.getColumnIndex("LimiteSuperior"))));
-            limiteSuperior.setPadding(dpAsPixels(16),dpAsPixels(5),0,0);
+            TextView tipoSensor = new TextView(this);
+            tipoSensor.setText(cursorAlertasGlobais.getString(cursorAlertasGlobais.getColumnIndex("TipoSensor")));
+            tipoSensor.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
 
             TextView valorMedicao = new TextView(this);
-            valorMedicao.setText(Double.toString(cursorAlertasGlobais.getDouble(cursorAlertasGlobais.getColumnIndex("ValorMedicao"))));
+            String valor = Double.toString(cursorAlertasGlobais.getDouble(cursorAlertasGlobais.getColumnIndex("ValorMedicao")));
+            if (valor.equals("-1000.0"))valor = "null";
+            valorMedicao.setText(valor);
             valorMedicao.setPadding(dpAsPixels(16),dpAsPixels(5),0,0);
+
+            TextView limite = new TextView(this);
+            String valorLimite = Double.toString(cursorAlertasGlobais.getDouble(cursorAlertasGlobais.getColumnIndex("Limite")));
+            if (valorLimite.equals("-1000.0")) valorLimite = "null";
+            limite.setText(valorLimite);
+            limite.setPadding(dpAsPixels(16),dpAsPixels(5),0,0);
 
             TextView descricao = new TextView(this);
             descricao.setText(cursorAlertasGlobais.getString(cursorAlertasGlobais.getColumnIndex("Descricao")));
             descricao.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
 
+            TextView controlo = new TextView(this);
+            String valorControlo = Integer.toString(cursorAlertasGlobais.getInt(cursorAlertasGlobais.getColumnIndex("Controlo")));
+            controlo.setText(valorControlo);
+            controlo.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
+
+            TextView extra = new TextView(this);
+            extra.setText(cursorAlertasGlobais.getString(cursorAlertasGlobais.getColumnIndex("Extra")));
+            extra.setPadding(dpAsPixels(16),dpAsPixels(5),dpAsPixels(5),0);
+
             String intHora = horaFormatado.replace(":", "");
             int newHora = Integer.parseInt(intHora);
-            System.out.println("BBBBB " + sp.getInt("timePref", 0));
-            System.out.println("CCCCC " + newHora);
             if (newHora > mostRecentEntry) mostRecentEntry = newHora;
             if (newHora > sp.getInt("timePref", 0)) {
-                System.out.println("DDDDDD "+ sp.getInt("refreshPref", 1));
                 if (sp.getInt("refreshPref", 1) == 0) {
-                    //nomeVariavel.setTypeface(null, Typeface.BOLD);
-                    System.out.println("EEEEEE ");
-                    nomeVariavel.setTextColor(Color.RED);
                     hora.setTextColor(Color.RED);
-                    limiteInferior.setTextColor(Color.RED);
-                    limiteSuperior.setTextColor(Color.RED);
+                    tipoSensor.setTextColor(Color.RED);
                     valorMedicao.setTextColor(Color.RED);
+                    limite.setTextColor(Color.RED);
                     descricao.setTextColor(Color.RED);
+                    controlo.setTextColor(Color.RED);
+                    extra.setTextColor(Color.RED);
                 }
             }
-
-            row.addView(nomeVariavel);
             row.addView(hora);
-            row.addView(limiteInferior);
-            row.addView(limiteSuperior);
+            row.addView(tipoSensor);
             row.addView(valorMedicao);
+            row.addView(limite);
             row.addView(descricao);
+            row.addView(controlo);
+            row.addView(extra);
 
             table.addView(row, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
 
@@ -234,14 +258,18 @@ public class AlertasGlobaisActivity extends AppCompatActivity {
         editor2.apply();
     }
 
-    private int dpAsPixels(int dp){
+    private int dpAsPixels(int dp) {
         float scale = getResources().getDisplayMetrics().density;
         return (int) (dp*scale + 0.5f);
-
     }
 
-    public void refreshButton(View v){
+    public void refreshButton(View v) {
         getAlertas();
         listAlertas();
+    }
+
+    public void medicoesTemperatura(View v) {
+        Intent i = new Intent(this, MedicoesTemperaturaActivity.class);
+        startActivity(i);
     }
 }

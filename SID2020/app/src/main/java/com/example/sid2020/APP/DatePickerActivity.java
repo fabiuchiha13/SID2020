@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
 
-import com.example.sid2020.APP.Database.DataBaseConfig;
 import com.example.sid2020.R;
 
 public class DatePickerActivity extends AppCompatActivity {
@@ -29,12 +28,6 @@ public class DatePickerActivity extends AppCompatActivity {
         intent.putExtra("date",yearMonthDay);
         startActivity(intent);
         finish();}
-        else{
-            Intent intent = new Intent(this, AlertasCulturaActivity.class);
-            intent.putExtra("date",yearMonthDay);
-            startActivity(intent);
-            finish();
-        }
 
     }
 }

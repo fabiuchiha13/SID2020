@@ -7,7 +7,6 @@ import android.os.StrictMode;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,8 +16,6 @@ import com.example.sid2020.APP.Helper.UserLogin;
 import com.example.sid2020.R;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-
 import java.util.HashMap;
 
 
@@ -70,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
             new UserLogin(ip.getText().toString(), port.getText().toString(), username.getText().toString(), password.getText().toString());
 
 
-            Intent i = new Intent(this, MainActivity.class);
+            Intent i = new Intent(this, AlertasGlobaisActivity.class);
             startActivity(i);
             finish();
         } else {
