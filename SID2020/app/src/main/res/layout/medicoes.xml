@@ -8,7 +8,7 @@
 
     <com.jjoe64.graphview.GraphView
         android:id="@+id/temperatura_graph"
-        android:layout_width="358dp"
+        android:layout_width="345dp"
         android:layout_height="200dip"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
@@ -39,8 +39,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.955" />
+        app:layout_constraintTop_toBottomOf="@id/temperatura_graph"
+        app:layout_constraintVertical_bias="0.711" />
 
     <TextView
         android:id="@+id/medicoesTemperatura_tv"
@@ -53,12 +53,12 @@
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
         android:text="Medições de Temperatura"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="25dp"
+        app:layout_constraintBottom_toTopOf="@id/temperatura_graph"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.488"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.06" />
+        app:layout_constraintVertical_bias="0.568" />
 
 </android.support.constraint.ConstraintLayout>
